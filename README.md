@@ -102,3 +102,16 @@ I can provide you with two links - original source and with debug overlay by e-m
 - I was testing with Video.Js v7.14.3 (VHS v2.9.2) and v 7.18.0 (VHS v2.13.1).
 - Run provided stream at any DTS-based buffered browsers (eg: chromium v72).
 - Wait for a discontinuity.
+
+
+### Browsers
+
+Chromium 72.0.3626.121
+
+### Platforms
+
+Linux
+
+### Other Plugins
+
+No.

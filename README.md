@@ -14,7 +14,7 @@ Video frames from the next media sequence do not start.
 After ~1 second: the player seeks back, buffering occurs, and the next media sequence plays fine:
 Audio frames start over in sync with video frames from the next media sequence.
 
-The most interesting part is that this issue occurs only on STB's browser( which is Chromium v72) and does not occur on my laptop's browser (which is the latest Chrome).
+The most interesting part is that this issue occurs only on STB's browser(which is Chromium v72) and does not occur on my laptop's browser (which is the latest Chrome).
 
 So I started my investigation:
 

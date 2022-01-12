@@ -97,7 +97,7 @@ My Proposal is to add a config option to choose between PTS-based and DTS-based 
 
 
 PS: I also noticed several problems with mux.js during investigation:
-- based on ffprobe output transmuxer generates strange frame's duration in mp4 files.
+- based on `ffprobe` output - transmuxer generates strange frame's duration in mp4 files.
 - It is not possible to update `baseMediaDecodeTime` on the fly. You should re-initialize transmuxer to get an effect.
 
 ## Sources

@@ -92,15 +92,12 @@ with PTS-based offset -> I see that after 2 seconds of freeze it starts the next
 with DTS-based offset -> I see no freezes and it starts the next program with frame #0 which is the first I-Frame of the 1st closed GOP.
 ![image](https://user-images.githubusercontent.com/94862693/149062988-39149aba-61fa-4cf6-a8ff-b2d59ee78e14.png)
 
-
-
+My Proposal is to add a config option to choose between PTS-based and DTS-based offset calculations, in order to support DTS-based buffered browsers, such as chromium v72.
 
 ## Sources
-Is a certain source or a certain segment affected? please provide a public (accessible over the internet) link to it below.
+I can provide you with two links - original source and with debug overlay by e-mail.
 
 ## Steps to reproduce
-Explain in detail the exact steps necessary to reproduce the issue.
-
-1.
-2.
-3.
+- I was testing with Video.Js v7.14.3 (VHS v2.9.2) and v 7.18.0 (VHS v2.13.1).
+- Run provided stream at any DTS-based buffered browsers (eg: chromium v72).
+- Wait for a discontinuity.

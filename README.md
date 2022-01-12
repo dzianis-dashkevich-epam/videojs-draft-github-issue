@@ -95,6 +95,11 @@ with DTS-based offset -> I see no freezes and it starts the next program with fr
 
 My Proposal is to add a config option to choose between PTS-based and DTS-based offset calculations, in order to support DTS-based buffered browsers, such as chromium v72.
 
+
+PS: I also noticed several problems with mux.js during investigation:
+- based on ffprobe output transmuxer generates strange frame's duration in mp4 files.
+- It is not possible to update `baseMediaDecodeTime` on the fly. You should re-initialize transmuxer to get an effect.
+
 ## Sources
 I can provide you with two links - original source and with debug overlay by e-mail.
 

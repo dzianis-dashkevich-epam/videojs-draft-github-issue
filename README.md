@@ -4,17 +4,17 @@
 
 Hello, Video.Js and VHS Teams!
 
-I am working with STB and, we are using Video.Js for HLS live playback.
+I am working with STB and we are using Video.Js for HLS live playback.
 I noticed interesting behavior during discontinuity:
 
 The player freezes at the last video frame of the last segment of the previous media sequence.
 Audio frames from the next media sequence overlap this frozen frame.
 Video frames from the next media sequence do not start.
 
-After ~1 second: the player seeks back, buffering occurs and, the next media sequence plays fine:
+After ~1 second: the player seeks back, buffering occurs, and the next media sequence plays fine:
 Audio frames start over in sync with video frames from the next media sequence.
 
-The most interesting part is that this issue occurs only on STB(Chromium v72) and does not occur on my laptop(Chrome LTS).
+The most interesting part is that this issue occurs only on STB's browser( which is Chromium v72) and does not occur on my laptop's browser (which is the latest Chrome).
 
 So I started my investigation:
 

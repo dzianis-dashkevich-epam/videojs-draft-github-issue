@@ -1,4 +1,6 @@
 ## Description
+(*Note: there is a lot of text on purpose. Please read to the end. Eventually, it will draw you a picture of the issue.*)
+
 Hello, Video.Js Team!
 
 I am working with STB and, we are using Video.Js for HLS live playback.
@@ -48,33 +50,46 @@ To answer this question, I decided to take a look into frames:
 `ffprobe -v quiet -print_format json -show_format -show_streams -show_frames -show_packets -count_frames -count_packets "$session_ts_segment_input" > "$ffprobe_ts_output"`
 
 Based on the reports from `ffprobe` 
-I noticed, that buffered ranges reported from the chromium on STB is based DTS, 
-but buffered ranges reported from chrome on my laptop is based on PTS.
-Aha! I replaced `segmentInfo.timingInfo.start;`(which is PTS value from transmuxer) to `segmentInfo.segment.videoTimingInfo.transmuxedDecodeStart;` (which is DTS value from transmuxer)
-in timestamp offset calculation at `segmentLoader` and finally it works.
+I noticed, that buffered ranges reported from Chromium on STB are based on DTS, 
+but buffered ranges reported from Chrome on my laptop are based on PTS.
 
-But why it is working with DTS-based timestamp Offset and is not working with PTS-based timestamp Offset?
-To answer this question I decide to draw a picture:
+I replaced `segmentInfo.timingInfo.start`(which is frame's PTS value from the transmuxer) 
+
+to `segmentInfo.segment.videoTimingInfo.transmuxedDecodeStart` (which is frame's DTS value from the transmuxer) 
+
+in [segmentLoader timestamp offset calculation](https://github.com/videojs/http-streaming/blob/main/src/segment-loader.js#L2908). Finally it works.
+
+But why is it working with DTS-based timestamp Offset and not working with PTS-based timestamp Offset?
+
+To answer this question I decided to draw several segments from the stream:
 ![image](https://user-images.githubusercontent.com/94862693/149061494-aeccd77d-f2c0-42b5-90c6-a35783e75008.png)
 
-And how frames reference to each other:
+And how different types of frames are encoded and reference each other's macroblocks:
 ![image](https://user-images.githubusercontent.com/94862693/149061787-c5a22e88-849e-4b96-b2a2-c525db4230e1.png)
 
 
-I did not dive really deep into chromium source code, and it was not possible to collect chromium debug logs from STB,
-but based on the information above:
-It looks like after updating timestamp offset and append next frames it does not hit the first I-Frame and because of this it is not possible to decode further frames in the closed GOP. That is why browser drops all frames until next random access point (https://www.w3.org/TR/media-source/#random-access-point) - in our case next I-Frame. Because stream is 30 fps and because stream is based on Apple recommendations:
-1.13. Key frames (IDRs) SHOULD be present every two seconds.
-https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
-I saw exactly 2 seconds of freeze.
+I did not dive really deep into chromium source code, and it was not possible to collect chromium debug logs from STB.
 
-In order to prove my theory even without logs from chromium I decided to re-encode original stream with frame info overlay:
+But I noticed an interesting flag in the old chromium revision:
+
+https://chromium.googlesource.com/chromium/src/+/refs/tags/72.0.3626.121/media/base/media_switches.cc#293
+
+Based on the information above, I made the following assumption:
+
+It looks like after updating timestamp offset and appending the next frames browser does not hit the very first I-Frame, and because of this - it is not possible to decode further frames in the closed GOP. That is why the browser drops all frames until the next [random access point](https://www.w3.org/TR/media-source/#random-access-point) - in our case next I-Frame. Because the stream is 30 fps and because it is based on Apple's recommendation:
+[1.13. Key frames (IDRs) SHOULD be present every two seconds.](https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices)
+I saw this 2 seconds of freeze. (the root cause of the `vhs-unknown-waiting` from the beginning.)
+
+In order to prove my assumption (even without debug logs from the chromium), I decided to re-encode the original stream with frame info overlay on it:
+
 `ffmpeg -i $input -vf "drawtext=fontfile=Arial.ttf:text='Frame\: %{frame_num} Type\: %{pict_type} PTS\: %{pts}':start_number=0:x=(w-text_w)/2:y=(h-text_h)/2:fontcolor=white:fontsize=21:box=1:boxcolor=black@0.75:boxborderw=6" -c:v libx264 -c:a copy -copyts -muxdelay 0.01568455555555555555 -map_metadata 0 -force_key_frames:v source -force_key_frames:a source -r 30000/1001 $output`
-I tested this stream both using PTS-based offset and DTS-based offset.
-with PTS-based offset I see that after 2 secods of freeze it starts next program with frame #60 which is first I-Frame of the 2nd closed GOP.
+
+I tested this stream both using PTS-based offset and DTS-based offset:
+
+with PTS-based offset -> I see that after 2 seconds of freeze it starts the next program with frame #60 which is the first I-Frame of the 2nd closed GOP.
 ![image](https://user-images.githubusercontent.com/94862693/149062830-7ef352f7-d47f-4b5a-b1f8-ee083877e47d.png)
 
-with DTS-based offset I see no freezes and it starts next program with frame #0 which is first I-Frame of the 1st closed GOP.
+with DTS-based offset -> I see no freezes and it starts the next program with frame #0 which is the first I-Frame of the 1st closed GOP.
 ![image](https://user-images.githubusercontent.com/94862693/149062988-39149aba-61fa-4cf6-a8ff-b2d59ee78e14.png)
 
 

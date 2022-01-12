@@ -1,7 +1,8 @@
 ## Description
-(*Note: there is a lot of text on purpose. Please read to the end. Eventually, it will draw you a picture of the issue.*)
 
-Hello, Video.Js Team!
+(***Note: there is a lot of text on purpose. Please read to the end. Eventually, it will draw you a picture of the issue.***)
+
+Hello, Video.Js and VHS Teams!
 
 I am working with STB and, we are using Video.Js for HLS live playback.
 I noticed interesting behavior during discontinuity:

@@ -93,6 +93,14 @@ with PTS-based offset -> I see that after 2 seconds of freeze it starts the next
 with DTS-based offset -> I see no freezes and it starts the next program with frame #0 which is the first I-Frame of the 1st closed GOP.
 ![image](https://user-images.githubusercontent.com/94862693/149062988-39149aba-61fa-4cf6-a8ff-b2d59ee78e14.png)
 
+
+Lets go further and re-encode the stream with more frequent GOP size, lets say 12 frames, and then apply overlay filter:
+
+we can achieve this by adding libx264 options: `-x264opts "keyint=12:min-keyint=12:no-scenecut"`
+
+with PTS-based offset -> I see that next program starts with frame #12 which is the first I-Frame of the 2nd closed GOP.
+
+
 My Proposal is to add a config option to choose between PTS-based and DTS-based offset calculations, in order to support DTS-based buffered browsers, such as chromium v72.
 
 
